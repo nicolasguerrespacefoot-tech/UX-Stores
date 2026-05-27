@@ -332,11 +332,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--sh-lg);transform:translateY(8px);opacity:0;transition:all .22s cubic-bezier(0.4,0,0.2,1);pointer-events:none;z-index:9999;}
 .toast.show{transform:none;opacity:1;}
 
-/* ── Kbd ── */
-.kbd-hint{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
-.kbd-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);}
-.kbd{background:var(--surface-2);border:1px solid var(--border-md);border-radius:5px;padding:2px 7px;font-family:var(--mono);font-size:11px;color:var(--text-2);}
-
 /* ── Empty ── */
 .empty{text-align:center;padding:40px 20px;color:var(--text-2);font-size:14px;}
 .empty-icon{font-size:30px;margin-bottom:10px;}
@@ -435,11 +430,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     </div>
     <div id="caseGrid" class="cases-grid"></div>
     <div id="diagPanel" style="display:none;"></div>
-    <div class="kbd-hint" style="margin-top:18px;">
-      <span class="kbd-item"><kbd class="kbd">O</kbd> Oui</span>
-      <span class="kbd-item"><kbd class="kbd">N</kbd> Non</span>
-      <span class="kbd-item"><kbd class="kbd">Échap</kbd> Fermer</span>
-    </div>
   </div>
 </div>
 
@@ -581,12 +571,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 const SAV_URL = "[URL NOUS CONTACTER]";
 
 const BOUTIQUES = [
-  { id:"foot",  name:"⚽ Foot Store",         color:"#1E7A3E" },
-  { id:"end",   name:"🏃 Endurance Store",    color:"#C44B1A" },
-  { id:"velo",  name:"🚴 Vélo Store",         color:"#1A5FAB" },
-  { id:"gold",  name:"⛳ Boulevard du Golf",  color:"#B08A00" },
-  { id:"smash", name:"🎾 Smash Expert",       color:"#7B2FA8" },
+  { id:"foot",  name:"Foot Store",         emoji:"⚽", color:"#1E7A3E" },
+  { id:"end",   name:"Endurance Store",    emoji:"🏃", color:"#C44B1A" },
+  { id:"velo",  name:"Vélo Store",         emoji:"🚴", color:"#1A5FAB" },
+  { id:"gold",  name:"Boulevard du Golf",  emoji:"⛳", color:"#B08A00" },
+  { id:"smash", name:"Smash Expert",       emoji:"🎾", color:"#7B2FA8" },
+  { id:"ayumi", name:"Ayumi",              emoji:"👗", color:"#C2185B" },
 ];
+
+function boutiqueDisplayName(b){ return b.emoji + " " + b.name; }
 
 function R(title,badge,color,script,action){return{title,badge,color,script,action};}
 
@@ -683,7 +676,7 @@ function buildBoutiqueList(){
   BOUTIQUES.forEach(b=>{
     const btn = document.createElement("button");
     btn.className = "boutique-option";
-    btn.innerHTML = `<span class="dot" style="background:${b.color};"></span><span class="bname">${b.name}</span><svg class="arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    btn.innerHTML = `<span class="dot" style="background:${b.color};"></span><span class="bname">${boutiqueDisplayName(b)}</span><svg class="arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
     btn.onclick = ()=>selectBoutique(b);
     list.appendChild(btn);
   });
@@ -696,7 +689,7 @@ function openBoutiqueModal(){
 function selectBoutique(b){
   activeBoutique = b;
   document.getElementById("boutiqueModal").style.display="none";
-  document.getElementById("sidebarBoutiqueName").textContent = b.name;
+  document.getElementById("sidebarBoutiqueName").textContent = boutiqueDisplayName(b);
   document.getElementById("sidebarDot").style.background = b.color;
 }
 
@@ -792,7 +785,7 @@ function renderQuestion(){
         <div style="flex:1;">
           <div class="diag-title">${currentCase.title}</div>
           <div class="diag-sub" style="display:flex;align-items:center;gap:6px;">
-            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?.name||''}</span>
+            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?boutiqueDisplayName(activeBoutique):''}</span>
             Diagnostic en cours
           </div>
         </div>
@@ -848,7 +841,6 @@ function renderResult(res){
   const heroBg = res.color==="green"?"var(--green-bg)":res.color==="purple"?"var(--purple-bg)":"var(--orange-bg)";
   const badgeCls = res.color==="green"?"b-green":res.color==="purple"?"b-purple":"b-orange";
   const emoji = res.color==="green"?"✅":"↗️";
-  const teamsMsg = buildTeamsMessage(res);
 
   panel.innerHTML=`
     <div class="diag-panel">
@@ -857,14 +849,17 @@ function renderResult(res){
         <div style="flex:1;">
           <div class="diag-title">${currentCase.title}</div>
           <div class="diag-sub" style="display:flex;align-items:center;gap:6px;">
-            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?.name||''}</span>
+            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?boutiqueDisplayName(activeBoutique):''}</span>
             Résultat du diagnostic
           </div>
         </div>
         <button class="btn btn-sm btn-ghost" onclick="closePanel()">Fermer</button>
       </div>
+
       <div class="diag-body">
         ${histHTML()}
+
+        <!-- Result hero -->
         <div class="result-hero" style="background:${heroBg};">
           <div class="result-hero-top">
             <div class="result-hero-emoji">${emoji}</div>
@@ -874,42 +869,70 @@ function renderResult(res){
             </div>
           </div>
         </div>
-        <div class="result-cols">
-          <div>
-            <div class="result-block-label">Script à dire au client</div>
-            <div class="script-box" id="scriptBox">"${res.script}"</div>
-            <button class="btn btn-sm" onclick="copyScript()" style="margin-top:8px;">
-              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copier le script
+
+        <!-- BLOC 1 : MESSAGE CLIENT -->
+        <div style="background:var(--green-bg);border:1.5px solid rgba(15,110,86,0.25);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:18px;">💬</span>
+            <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--green-dark);">À dire au client</span>
+            <button class="btn btn-sm" onclick="copyScript()" style="margin-left:auto;background:var(--green);color:#fff;border-color:transparent;padding:5px 12px;font-size:12px;">
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copier
             </button>
-            <div class="result-block-label" style="margin-top:14px;">Note rapide</div>
-            <textarea class="notes-textarea" id="noteArea" placeholder="Observations, contexte particulier…" oninput="callNote=this.value">${callNote}</textarea>
           </div>
-          <div>
-            <div class="result-block-label">Action équipe</div>
-            <div class="action-box">${res.action}</div>
-            <div class="result-block-label" style="margin-top:12px;">Lien utile</div>
-            <a class="link-btn" href="${SAV_URL}" target="_blank">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Formulaire Nous contacter
-            </a>
-          </div>
+          <div id="scriptBox" style="font-style:italic;font-size:15px;line-height:1.7;color:var(--green-dark);background:rgba(255,255,255,0.6);border-radius:var(--r);padding:14px 16px;border:1px solid rgba(15,110,86,0.15);">"${res.script}"</div>
         </div>
-        ${isSAV?`
-        <div class="teams-block">
-          <div class="teams-header">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#464EB8"><path d="M20.5 3h-17C2.67 3 2 3.67 2 4.5v15c0 .83.67 1.5 1.5 1.5h17c.83 0 1.5-.67 1.5-1.5v-15c0-.83-.67-1.5-1.5-1.5zM10 17H8v-6h2v6zm4 0h-2v-6h2v6zm4 0h-2v-6h2v6z"/></svg>
-            <span class="teams-header-title">Paquet de transfert Teams</span>
+
+        <!-- BLOC 2 : INFOS CLIENT + NOTE -->
+        <div style="background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:16px;">👤</span>
+            <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);">Informations client</span>
           </div>
-          <div class="teams-preview" id="teamsPreview">${teamsMsg}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-sm btn-teams" onclick="copyTeams()">
-              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px;">EMAIL / TÉL.</div>
+              <input class="client-input" id="ci_contact2" placeholder="jean.dupont@email.com ou 06…" value="${clientEmail||clientPhone}"
+                oninput="if(this.value.includes('@'))clientEmail=this.value;else clientPhone=this.value;liveUpdateTeams();" style="width:100%;">
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px;">N° COMMANDE</div>
+              <input class="client-input" id="ci_order2" placeholder="#FR-XXXXXX" value="${clientOrder}"
+                oninput="clientOrder=this.value;liveUpdateTeams();" style="width:100%;">
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:4px;">NOTE RAPIDE</div>
+          <textarea class="notes-textarea" id="noteArea" placeholder="Observations, contexte particulier, niveau de mécontentement…"
+            oninput="callNote=this.value;liveUpdateTeams();">${callNote}</textarea>
+        </div>
+
+        <!-- BLOC 3 : ACTION ÉQUIPE -->
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:14px;display:flex;gap:14px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px;">⚡</span>
+          <div style="flex:1;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:5px;">Action équipe</div>
+            <div style="font-size:13.5px;line-height:1.55;">${res.action}</div>
+          </div>
+          <a class="link-btn" href="${SAV_URL}" target="_blank" style="flex-shrink:0;white-space:nowrap;">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Formulaire SAV
+          </a>
+        </div>
+
+        <!-- BLOC 4 : PAQUET TEAMS (SAV only) -->
+        ${isSAV?`
+        <div style="background:#F0F1FB;border:2px solid #464EB8;border-radius:var(--r-lg);padding:18px 20px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:18px;">📨</span>
+            <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#3a41a0;">Paquet Teams — À envoyer au SAV</span>
+            <button class="btn btn-sm btn-teams" onclick="copyTeams()" style="margin-left:auto;padding:5px 12px;font-size:12px;">
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copier pour Teams
             </button>
-            <button class="btn btn-sm btn-ghost" onclick="refreshTeams()">Mettre à jour</button>
           </div>
+          <div id="teamsPreview" style="background:#fff;border:1px solid #C5C8EF;border-radius:var(--r-sm);padding:13px 15px;font-family:var(--mono);font-size:12px;line-height:1.75;color:#2a2d6e;white-space:pre-wrap;"></div>
         </div>`:""}
+
         <div class="result-actions">
           <button class="btn btn-sm" onclick="restartCase()">
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
@@ -919,21 +942,33 @@ function renderResult(res){
         </div>
       </div>
     </div>`;
+
   panel._res = res;
   panel._script = res.script;
+  if(isSAV) liveUpdateTeams();
 }
 
+/* ── Teams message builder ── */
 function buildTeamsMessage(res){
   const now = new Date();
   const heure = now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const boutiqueName = activeBoutique ? activeBoutique.name : "Boutique";
   const contact = clientEmail||clientPhone||"Non renseigné";
   const order = clientOrder||"Non renseigné";
   const note = (document.getElementById("noteArea")?.value)||callNote||"—";
-  const diagLines = histAnswers.map(h=>`  • ${h.q} → ${h.a}`).join("\n")||"  (orientation directe)";
-  return `🔴 ESCALADE SAV — ${activeBoutique?.name||"Boutique"}
+
+  // Build diagnostic lines
+  let diagLines = "";
+  if(histAnswers.length){
+    diagLines = histAnswers.map(h=>`  • ${h.q} → ${h.a}`).join("\n");
+  } else {
+    diagLines = "  (orientation directe)";
+  }
+
+  return `🔴 ESCALADE SAV — ${boutiqueName}
 ──────────────────────────
 ⏱ Heure : ${heure}
-🏪 Boutique : ${activeBoutique?.name||"—"}
+🏪 Boutique : ${boutiqueName}
 👤 Contact client : ${contact}
 📦 N° commande : ${order}
 ──────────────────────────
@@ -947,14 +982,19 @@ ${diagLines}
 → Action demandée : ${res.action}`;
 }
 
-function refreshTeams(){
-  const panel=document.getElementById("diagPanel");
-  const res=panel._res;
-  if(!res) return;
-  const note=document.getElementById("noteArea")?.value||"";
-  callNote=note;
-  document.getElementById("teamsPreview").textContent=buildTeamsMessage(res);
-  showToast("Message mis à jour ✓");
+function liveUpdateTeams(){
+  const panel = document.getElementById("diagPanel");
+  if(!panel||!panel._res) return;
+  const preview = document.getElementById("teamsPreview");
+  if(!preview) return;
+  // Sync fields before building
+  const cc = document.getElementById("ci_contact2");
+  const co = document.getElementById("ci_order2");
+  const na = document.getElementById("noteArea");
+  if(cc){ if(cc.value.includes("@")) clientEmail=cc.value; else clientPhone=cc.value; }
+  if(co) clientOrder = co.value;
+  if(na) callNote = na.value;
+  preview.textContent = buildTeamsMessage(panel._res);
 }
 
 function copyScript(){
@@ -962,7 +1002,7 @@ function copyScript(){
   copyToClip(t,()=>showToast("Script copié ✓"));
 }
 function copyTeams(){
-  refreshTeams();
+  liveUpdateTeams();
   const t=document.getElementById("teamsPreview")?.textContent||"";
   copyToClip(t,()=>showToast("Paquet Teams copié ✓"));
 }
@@ -986,13 +1026,17 @@ function closePanel(){
 /* ── Session log ── */
 function logSession(cas,res){
   const now=new Date();
+  const teamsMsg=res.badge==="Orientation SAV"?buildTeamsMessage(res):"";
   sessionLog.push({
     icon:cas.icon,motif:cas.title,badge:res.badge,
-    boutique:activeBoutique?.name||"—",
+    boutique:activeBoutique?boutiqueDisplayName(activeBoutique):"—",
+    boutique_id:activeBoutique?.id||"",
     time:now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
     note:callNote,
     contact:clientEmail||clientPhone||"",
-    order:clientOrder||""
+    order:clientOrder||"",
+    teamsMsg:teamsMsg,
+    diagAnswers:[...histAnswers]
   });
   document.getElementById("histCount").textContent=sessionLog.length;
   const calls=sessionLog.length;
@@ -1004,18 +1048,57 @@ function logSession(cas,res){
 function renderHistorique(){
   const el=document.getElementById("histSessionList");
   if(!sessionLog.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>Aucun appel traité lors de cette session.</div>`;return;}
-  el.innerHTML=`<div class="hist-session-list">${[...sessionLog].reverse().map(l=>`
-    <div class="hist-session-item">
-      <div class="hist-session-icon">${l.icon}</div>
-      <div class="hist-session-info">
-        <div class="hist-session-top">
-          <span class="hist-session-motif">${l.motif}</span>
-          <span class="badge ${l.badge==="Orientation SAV"?"b-purple":"b-green"}">${l.badge}</span>
+  el.innerHTML=`<div class="hist-session-list">${[...sessionLog].reverse().map((l,ri)=>{
+    const idx=sessionLog.length-1-ri;
+    const isSAV=l.badge==="Orientation SAV";
+    return`<div class="hist-session-item" style="flex-direction:column;align-items:stretch;gap:0;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="hist-session-icon">${l.icon}</div>
+        <div class="hist-session-info" style="flex:1;">
+          <div class="hist-session-top">
+            <span class="hist-session-motif">${l.motif}</span>
+            <span class="badge ${isSAV?"b-purple":"b-green"}">${l.badge}</span>
+          </div>
+          <div class="hist-session-meta">
+            ${l.boutique} · ${l.time}
+            ${l.contact?`· <strong>${l.contact}</strong>`:""}
+            ${l.order?`· <strong>${l.order}</strong>`:""}
+          </div>
+          ${l.note?`<div class="hist-session-note">📝 ${l.note}</div>`:""}
         </div>
-        <div class="hist-session-meta">${l.boutique} · ${l.time}${l.contact?" · "+l.contact:""}${l.order?" · "+l.order:""}</div>
-        ${l.note?`<div class="hist-session-note">${l.note}</div>`:""}
+        ${isSAV?`<button class="btn btn-sm" onclick="toggleTeams(${idx})" id="teamsToggle_${idx}" style="flex-shrink:0;">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Paquet Teams
+        </button>`:""}
       </div>
-    </div>`).join("")}</div>`;
+      ${isSAV?`<div id="teamsBlock_${idx}" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:7px;">📨 Paquet de transfert Teams</div>
+        <div style="background:#F0F1FB;border:1px solid #C5C8EF;border-radius:var(--r-sm);padding:11px 13px;font-family:var(--mono);font-size:12px;line-height:1.7;color:#2a2d6e;white-space:pre-wrap;margin-bottom:8px;">${(l.teamsMsg||"").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+        <button class="btn btn-sm btn-teams" onclick="copyHistTeams(${idx})">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier pour Teams
+        </button>
+      </div>`:""}
+    </div>`;
+  }).join("")}</div>`;
+}
+
+function toggleTeams(idx){
+  const block=document.getElementById("teamsBlock_"+idx);
+  const btn=document.getElementById("teamsToggle_"+idx);
+  if(!block) return;
+  const open=block.style.display==="none";
+  block.style.display=open?"block":"none";
+  btn.style.background=open?"var(--purple-bg)":"";
+  btn.style.color=open?"var(--purple-dark)":"";
+  btn.style.borderColor=open?"rgba(60,52,137,0.2)":"";
+}
+
+function copyHistTeams(idx){
+  const msg=sessionLog[idx]?.teamsMsg||"";
+  navigator.clipboard?.writeText(msg).then(()=>showToast("Paquet Teams copié ✓")).catch(()=>{
+    const ta=document.createElement("textarea");ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);showToast("Paquet Teams copié ✓");
+  });
 }
 
 /* ── Stats ── */
@@ -1032,24 +1115,21 @@ function renderStats(){
   const raw=localStorage.getItem("abStats_v3")||"[]";
   let data=JSON.parse(raw);
 
-  // build boutique filter tabs
   const bids=[...new Set(data.map(d=>d.boutique))].filter(Boolean);
   const tabsEl=document.getElementById("filterTabs");
   tabsEl.innerHTML=`<button class="ftab ${kpiFilter==="all"?"active":""}" onclick="setFilter('all')">Toutes les boutiques</button>`
-    +BOUTIQUES.filter(b=>bids.includes(b.id)).map(b=>`<button class="ftab ${kpiFilter===b.id?"active":""}" onclick="setFilter('${b.id}')" style="${kpiFilter===b.id?"background:"+b.color+";color:#fff;border-color:transparent;":""}">${b.name}</button>`).join("");
+    +BOUTIQUES.filter(b=>bids.includes(b.id)).map(b=>`<button class="ftab ${kpiFilter===b.id?"active":""}" onclick="setFilter('${b.id}')" style="${kpiFilter===b.id?"background:"+b.color+";color:#fff;border-color:transparent;":""}">${boutiqueDisplayName(b)}</button>`).join("");
 
   if(kpiFilter!=="all") data=data.filter(d=>d.boutique===kpiFilter);
 
   const total=data.length;
   const esc=data.filter(d=>d.badge==="Orientation SAV").length;
 
-  // boutique breakdown
   const byBoutique={};
   data.forEach(d=>{byBoutique[d.boutique]=(byBoutique[d.boutique]||0)+1;});
   const topB=Object.entries(byBoutique).sort((a,b)=>b[1]-a[1])[0];
   const topBObj=topB?BOUTIQUES.find(b=>b.id===topB[0]):null;
 
-  // motif breakdown
   const byMotif={};
   data.forEach(d=>{
     if(!byMotif[d.motif]) byMotif[d.motif]={calls:0,esc:0,boutique:d.boutique};
@@ -1063,11 +1143,10 @@ function renderStats(){
   document.getElementById("kpiTotal").textContent=total;
   document.getElementById("kpiEsc").textContent=esc;
   document.getElementById("kpiEscPct").textContent=total>0?Math.round((esc/total)*100)+"% du total":"—";
-  document.getElementById("kpiTopBoutique").textContent=topBObj?topBObj.name:"—";
+  document.getElementById("kpiTopBoutique").textContent=topBObj?boutiqueDisplayName(topBObj):"—";
   document.getElementById("kpiTopBoutiqueSub").textContent=topB?topB[1]+" appel"+(topB[1]>1?"s":""):"—";
   document.getElementById("kpiTopMotif").textContent=topM?topM[0]:"—";
   document.getElementById("kpiTopMotifSub").textContent=topM?topM[1].calls+" appel"+(topM[1].calls>1?"s":""):"—";
-
   document.getElementById("kpiBadge").textContent=JSON.parse(localStorage.getItem("abStats_v3")||"[]").length;
 
   const body=document.getElementById("kpiBody");
@@ -1076,7 +1155,7 @@ function renderStats(){
     const bObj=BOUTIQUES.find(b=>b.id===v.boutique);
     return`<tr>
       <td style="font-weight:500;">${motif}</td>
-      <td>${bObj?`<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${bObj.color};display:inline-block;"></span>${bObj.name}</span>`:"—"}</td>
+      <td>${bObj?`<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${bObj.color};display:inline-block;"></span>${boutiqueDisplayName(bObj)}</span>`:"—"}</td>
       <td>${v.calls}</td>
       <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${Math.round((v.calls/maxCalls)*100)}%"></div></div><span style="font-size:11px;color:var(--text-3);min-width:28px;">${total>0?Math.round((v.calls/total)*100):0}%</span></div></td>
       <td>${v.esc>0?`<span class="badge b-purple">${v.esc}</span>`:`<span style="color:var(--text-3);">0</span>`}</td>
@@ -1128,18 +1207,6 @@ function resetSession(){
   renderHistorique();
   showToast("Session réinitialisée ✓");
 }
-
-/* ── Keyboard shortcuts ── */
-document.addEventListener("keydown",e=>{
-  const panel=document.getElementById("diagPanel");
-  if(!panel||panel.style.display==="none") return;
-  if(e.key==="Escape"){closePanel();return;}
-  const yesBtn=panel.querySelector(".ans-yes");
-  const noBtn=panel.querySelector(".ans-no");
-  if(!yesBtn||!noBtn) return;
-  if(e.key==="o"||e.key==="O"){yesBtn.click();}
-  if(e.key==="n"||e.key==="N"){noBtn.click();}
-});
 
 /* ── Init ── */
 document.addEventListener("DOMContentLoaded",()=>{
