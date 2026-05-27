@@ -1,138 +1,1136 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Assistant Boutique — Aide à la réponse client</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f5f3; color:#1c1c1d; margin:0; padding:0; }
-    .app { max-width:1180px; margin:0 auto; padding:24px; }
-    header.hero { background:#ffffff; border-radius:24px; padding:32px; text-align:center; box-shadow:0 10px 30px rgba(26,26,24,0.06); }
-    header.hero h1 { font-size:clamp(28px,4vw,44px); margin-bottom:14px; }
-    header.hero p { color:#73726c; max-width:820px; margin:0 auto 24px; }
-    .hero-actions { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
-    .hero-actions a { border:1px solid #d8d5ca; border-radius:999px; padding:10px 16px; text-decoration:none; color:#1f1f1d; font-weight:600; transition:0.15s ease; background:#ffffff; }
-    .hero-actions a:hover { box-shadow:0 8px 20px rgba(26,26,24,0.08); }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Assistant Boutique — Commandes Web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F2F0EB;--surface:#FAFAF8;--surface-2:#EEECEA;--surface-3:#E4E2DC;
+  --border:rgba(28,26,22,0.09);--border-md:rgba(28,26,22,0.15);--border-strong:rgba(28,26,22,0.22);
+  --text:#1A1916;--text-2:#6B6860;--text-3:#A09E99;
+  --green:#0F6E56;--green-bg:#E1F5EE;--green-dark:#085041;
+  --purple:#3C3489;--purple-bg:#EEEDFE;--purple-dark:#26215C;
+  --red:#791F1F;--red-bg:#FCEBEB;--red-dark:#501313;
+  --orange:#712B13;--orange-bg:#FAECE7;--orange-dark:#4A1B0C;
+  --blue:#0C447C;--blue-bg:#E6F1FB;--blue-dark:#042C53;
+  --amber:#854F0B;--amber-bg:#FAEEDA;
+  --r-sm:8px;--r:12px;--r-lg:18px;--r-xl:24px;
+  --sh-sm:0 1px 3px rgba(28,26,22,0.06),0 1px 2px rgba(28,26,22,0.04);
+  --sh:0 4px 16px rgba(28,26,22,0.07),0 1px 4px rgba(28,26,22,0.04);
+  --sh-lg:0 12px 40px rgba(28,26,22,0.10),0 2px 8px rgba(28,26,22,0.05);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --ease:0.18s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;}
 
-    .layout { display:grid; grid-template-columns:280px 1fr; gap:18px; align-items:start; margin-top:20px; }
-    aside.sidebar { position:sticky; top:16px; background:#ffffff; border:1px solid #d8d5ca; border-radius:20px; padding:16px; box-shadow:0 10px 30px rgba(26,26,24,0.06); }
-    aside.sidebar h2 { font-size:14px; margin-bottom:10px; }
-    aside.sidebar button { display:block; width:100%; text-align:left; border:none; background:transparent; padding:10px 12px; border-radius:12px; color:#73726c; cursor:pointer; transition:0.15s; margin-bottom:4px; }
-    aside.sidebar button:hover { background:#f1efe8; color:#1f1f1d; }
+/* ── Shell ── */
+.shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh;}
 
-    main.main { display:grid; gap:18px; }
-    section { background:#ffffff; border:1px solid #d8d5ca; border-radius:22px; padding:24px; box-shadow:0 10px 30px rgba(26,26,24,0.06); }
-    h2 { font-size:24px; letter-spacing:-0.03em; margin-bottom:12px; color:#0f6e56; }
-    p { margin-bottom:12px; color:#73726c; }
+/* ── Sidebar ── */
+.sidebar{
+  position:sticky;top:0;height:100vh;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:20px 14px;gap:2px;overflow-y:auto;
+}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.brand-icon{width:30px;height:30px;background:var(--text);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-icon svg{color:#fff;}
+.brand-name{font-size:13px;font-weight:600;line-height:1.25;}
+.brand-sub{font-size:11px;color:var(--text-3);}
 
-    .tag { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:12px; margin-bottom:8px; }
-    .tag.green { background:#e1f5ee; color:#0f6e56; }
-    .tag.blue { background:#e6f1fb; color:#0c447c; }
-    .tag.red { background:#fcebeb; color:#791f1f; }
-    .tag.purple { background:#eeedfe; color:#3c3489; }
+/* Boutique pill */
+.boutique-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface-2);border:1px solid var(--border-md);
+  border-radius:var(--r);padding:9px 12px;margin-bottom:8px;
+  cursor:pointer;transition:var(--ease);
+}
+.boutique-pill:hover{background:var(--surface-3);}
+.boutique-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.boutique-name{font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.boutique-change{font-size:11px;color:var(--text-3);}
 
-    .case-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:12px; margin-top:16px; }
-    .case-btn { border-radius:16px; padding:16px; background:#f1f4fb; cursor:pointer; font-weight:700; transition:0.2s; }
-    .case-btn:hover { background:#dbe3f7; }
+.nav-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);padding:10px 8px 4px;}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:var(--r-sm);
+  font-size:13.5px;color:var(--text-2);
+  cursor:pointer;transition:var(--ease);
+  border:none;background:none;width:100%;text-align:left;font-family:var(--font);
+}
+.nav-btn svg{opacity:0.45;flex-shrink:0;transition:var(--ease);}
+.nav-btn:hover{background:var(--surface-2);color:var(--text);}
+.nav-btn:hover svg{opacity:0.8;}
+.nav-btn.active{background:var(--text);color:#fff;font-weight:500;}
+.nav-btn.active svg{opacity:1;color:#fff;}
+.nav-count{margin-left:auto;background:var(--text);color:#fff;font-size:10px;font-weight:600;border-radius:999px;padding:1px 6px;min-width:18px;text-align:center;}
+.nav-btn.active .nav-count{background:rgba(255,255,255,0.25);}
 
-    select.search-box { width:100%; padding:12px; border-radius:14px; border:1px solid #d8d5ca; font-size:16px; margin-top:8px; }
+.session-summary{
+  margin-top:12px;border-top:1px solid var(--border);padding-top:12px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.session-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-3);padding:0 8px;}
+.session-val{font-weight:600;color:var(--text-2);}
 
-    #assistantPanel { margin-top:16px; border-radius:20px; padding:18px; background:#f1f6fc; box-shadow:0 10px 30px rgba(26,26,24,0.06); }
+.sidebar-footer{margin-top:auto;padding:12px 8px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text-3);line-height:1.6;}
 
-    .btn-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-    .btn-row button { border:none; border-radius:999px; padding:10px 16px; cursor:pointer; font-weight:700; }
-    .btn-row button.yes { background:#e1f5ee; color:#0f6e56; }
-    .btn-row button.no { background:#fde0e0; color:#791f1f; }
+/* ── Main ── */
+.main{overflow-x:hidden;}
+.page{display:none;animation:fadeUp .2s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 
-    table { width:100%; border-collapse:collapse; margin-top:12px; }
-    th, td { padding:10px; border-bottom:1px solid #d8d5ca; text-align:left; }
-    .footer-note { text-align:center; color:#73726c; font-size:0.85rem; margin-top:24px; }
-  </style>
+.page-header{padding:32px 36px 0;margin-bottom:28px;}
+.page-header h1{font-size:24px;font-weight:600;letter-spacing:-0.03em;margin-bottom:5px;}
+.page-header p{color:var(--text-2);font-size:14px;max-width:540px;}
+.breadcrumb{font-size:11px;color:var(--text-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;}
+.content{padding:0 36px 56px;}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px 22px;box-shadow:var(--sh-sm);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;padding:3px 9px;border-radius:999px;}
+.b-green{background:var(--green-bg);color:var(--green-dark);}
+.b-purple{background:var(--purple-bg);color:var(--purple-dark);}
+.b-red{background:var(--red-bg);color:var(--red-dark);}
+.b-blue{background:var(--blue-bg);color:var(--blue-dark);}
+.b-orange{background:var(--orange-bg);color:var(--orange-dark);}
+.b-amber{background:var(--amber-bg);color:var(--amber);}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:var(--r);font-family:var(--font);font-size:13.5px;font-weight:500;cursor:pointer;transition:var(--ease);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);}
+.btn:hover{background:var(--surface-2);transform:translateY(-1px);box-shadow:var(--sh-sm);}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--text);color:#fff;border-color:transparent;}
+.btn-primary:hover{background:#2c2a26;}
+.btn-green{background:var(--green);color:#fff;border-color:transparent;}
+.btn-green:hover{background:var(--green-dark);}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--text-2);}
+.btn-ghost:hover{background:var(--surface-2);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:12.5px;border-radius:var(--r-sm);}
+.btn-teams{background:#464EB8;color:#fff;border-color:transparent;}
+.btn-teams:hover{background:#3a41a0;}
+
+/* ── Boutique modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(20,18,14,0.55);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+  animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{
+  background:var(--surface);border:1px solid var(--border-md);border-radius:var(--r-xl);
+  padding:32px;width:440px;max-width:calc(100vw - 32px);
+  box-shadow:var(--sh-lg);animation:modalIn .25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.94) translateY(10px);}to{opacity:1;transform:none;}}
+.modal h2{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;}
+.modal p{font-size:13.5px;color:var(--text-2);margin-bottom:22px;line-height:1.5;}
+.boutique-list{display:flex;flex-direction:column;gap:8px;}
+.boutique-option{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:var(--r);border:1.5px solid var(--border);
+  background:var(--surface);cursor:pointer;transition:var(--ease);text-align:left;
+  font-family:var(--font);font-size:14px;font-weight:500;color:var(--text);
+}
+.boutique-option:hover{border-color:var(--border-strong);background:var(--surface-2);transform:translateX(2px);}
+.boutique-option .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.boutique-option .bname{flex:1;}
+.boutique-option .arrow{color:var(--text-3);transition:var(--ease);}
+.boutique-option:hover .arrow{color:var(--text);transform:translateX(2px);}
+
+/* ── Search ── */
+.search-wrap{position:relative;margin-bottom:18px;}
+.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:0.3;pointer-events:none;}
+.search-input{width:100%;padding:10px 13px 10px 38px;border:1px solid var(--border-md);border-radius:var(--r);font-family:var(--font);font-size:14px;background:var(--surface);color:var(--text);outline:none;transition:var(--ease);}
+.search-input:focus{border-color:var(--text);box-shadow:0 0 0 3px rgba(28,26,22,0.07);}
+.search-input::placeholder{color:var(--text-3);}
+
+/* ── Cases grid ── */
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+.case-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:16px;cursor:pointer;transition:var(--ease);
+  text-align:left;font-family:var(--font);
+  display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;
+}
+.case-card:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:var(--border-md);}
+.case-card:active{transform:scale(0.98);}
+.case-icon-bg{width:38px;height:38px;border-radius:var(--r-sm);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.case-title{font-size:13.5px;font-weight:600;line-height:1.3;}
+.case-desc{font-size:12px;color:var(--text-2);line-height:1.4;}
+.case-type{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-3);margin-top:2px;}
+.case-type-dot{width:6px;height:6px;border-radius:50%;}
+
+/* ── Diagnostic panel ── */
+.diag-panel{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);
+  overflow:hidden;box-shadow:var(--sh);margin-top:20px;
+  animation:slideUp .22s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.diag-header{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.diag-icon{width:40px;height:40px;border-radius:var(--r-sm);background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.diag-title{font-size:14.5px;font-weight:600;}
+.diag-sub{font-size:12px;color:var(--text-2);}
+
+/* Client info bar */
+.client-bar{
+  background:var(--surface-2);border-bottom:1px solid var(--border);
+  padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.client-field{display:flex;align-items:center;gap:6px;flex:1;min-width:160px;}
+.client-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);white-space:nowrap;}
+.client-input{
+  flex:1;padding:5px 9px;border:1px solid var(--border-md);border-radius:var(--r-sm);
+  font-family:var(--font);font-size:13px;background:var(--surface);color:var(--text);outline:none;
+  transition:var(--ease);
+}
+.client-input:focus{border-color:var(--text);}
+.client-input::placeholder{color:var(--text-3);}
+
+/* Progress */
+.prog-track{height:3px;background:var(--surface-3);overflow:hidden;}
+.prog-bar{height:100%;background:var(--text);transition:width .35s cubic-bezier(0.4,0,0.2,1);}
+.prog-labels{display:flex;justify-content:space-between;padding:5px 22px 0;font-size:11px;color:var(--text-3);}
+
+.diag-body{padding:24px 24px;}
+
+/* History */
+.hist-steps{display:flex;flex-direction:column;gap:5px;margin-bottom:20px;}
+.hist-step{display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:var(--r-sm);background:var(--surface-2);font-size:13px;}
+.hist-q{color:var(--text-2);flex:1;}
+.hist-a{font-weight:600;font-size:11px;padding:2px 8px;border-radius:999px;}
+.hist-a.yes{background:var(--green-bg);color:var(--green-dark);}
+.hist-a.no{background:var(--orange-bg);color:var(--orange-dark);}
+
+/* Question */
+.q-label{margin-bottom:5px;}
+.q-text{font-size:19px;font-weight:600;letter-spacing:-0.02em;margin-bottom:10px;line-height:1.3;}
+.q-hint{font-size:13px;color:var(--text-2);background:var(--amber-bg);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:18px;display:flex;gap:7px;align-items:flex-start;}
+.answer-row{display:flex;gap:10px;}
+.ans-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:var(--r);font-family:var(--font);
+  font-size:14px;font-weight:500;cursor:pointer;transition:var(--ease);
+  border:1.5px solid transparent;flex:1;
+}
+.ans-btn:active{transform:scale(0.97);}
+.ans-yes{background:var(--green-bg);color:var(--green-dark);border-color:rgba(15,110,86,0.18);}
+.ans-yes:hover{background:#c2e8d8;border-color:var(--green);}
+.ans-no{background:var(--orange-bg);color:var(--orange-dark);border-color:rgba(113,43,19,0.18);}
+.ans-no:hover{background:#f5d0be;border-color:var(--orange);}
+
+/* Result */
+.result-hero{border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);margin-bottom:18px;}
+.result-hero-top{padding:18px 22px;display:flex;align-items:center;gap:14px;}
+.result-hero-emoji{font-size:26px;}
+.result-hero-title{font-size:17px;font-weight:600;letter-spacing:-0.02em;margin-bottom:3px;}
+.result-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.result-block-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:7px;}
+.script-box{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);
+  padding:13px 15px;font-style:italic;font-size:13.5px;line-height:1.65;color:var(--text);
+}
+.action-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;font-size:13.5px;line-height:1.55;}
+.link-btn{
+  display:flex;align-items:center;gap:7px;text-decoration:none;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);
+  padding:9px 13px;font-size:13px;color:var(--blue);transition:var(--ease);
+}
+.link-btn:hover{background:var(--blue-bg);border-color:rgba(12,68,124,0.2);}
+
+/* Teams block */
+.teams-block{
+  background:var(--surface);border:1.5px solid #464EB8;border-radius:var(--r-lg);
+  padding:16px 18px;margin-top:14px;
+}
+.teams-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.teams-header-title{font-size:13px;font-weight:600;color:#464EB8;}
+.teams-preview{
+  background:#F0F1FB;border:1px solid #C5C8EF;border-radius:var(--r-sm);
+  padding:11px 13px;font-family:var(--mono);font-size:12px;line-height:1.7;
+  color:#2a2d6e;white-space:pre-wrap;margin-bottom:10px;
+}
+
+/* Notes */
+.notes-textarea{
+  width:100%;min-height:62px;border:1px solid var(--border-md);border-radius:var(--r);
+  padding:9px 12px;font-family:var(--mono);font-size:12.5px;
+  background:var(--surface);color:var(--text);resize:vertical;outline:none;transition:var(--ease);
+}
+.notes-textarea:focus{border-color:var(--text);}
+.notes-textarea::placeholder{color:var(--text-3);font-style:italic;}
+
+.result-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+
+/* ── Historique session ── */
+.hist-session-list{display:flex;flex-direction:column;gap:8px;}
+.hist-session-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:14px 18px;display:flex;align-items:center;gap:14px;
+}
+.hist-session-icon{font-size:20px;flex-shrink:0;}
+.hist-session-info{flex:1;}
+.hist-session-top{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.hist-session-motif{font-size:13.5px;font-weight:600;}
+.hist-session-meta{font-size:12px;color:var(--text-3);}
+.hist-session-note{font-size:12px;color:var(--text-2);margin-top:4px;font-style:italic;}
+
+/* ── KPI ── */
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 22px;display:flex;flex-direction:column;gap:3px;}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);}
+.kpi-value{font-size:34px;font-weight:300;letter-spacing:-0.04em;line-height:1;}
+.kpi-sub{font-size:12px;color:var(--text-3);margin-top:3px;}
+
+.stats-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+.stats-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);border-bottom:1px solid var(--border);}
+.stats-table td{padding:10px 12px;border-bottom:1px solid var(--border);}
+.stats-table tr:last-child td{border-bottom:none;}
+.stats-table tbody tr:hover{background:var(--surface-2);}
+.bar-cell{display:flex;align-items:center;gap:8px;}
+.bar-track{flex:1;height:3px;background:var(--surface-3);border-radius:999px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--text);border-radius:999px;}
+
+/* Boutique filter tabs */
+.filter-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.ftab{padding:5px 13px;border-radius:999px;font-size:12.5px;font-weight:500;border:1px solid var(--border-md);background:var(--surface);color:var(--text-2);cursor:pointer;transition:var(--ease);}
+.ftab:hover{background:var(--surface-2);}
+.ftab.active{background:var(--text);color:#fff;border-color:transparent;}
+
+/* ── Posture ── */
+.rule-row{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);}
+.rule-row:last-child{border-bottom:none;}
+.rule-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px;}
+.rule-dot.g{background:var(--green);}
+.rule-dot.r{background:var(--red);}
+.rule-text{font-size:13.5px;line-height:1.55;}
+
+/* ── Roles ── */
+.role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;}
+.role-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.role-icon{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;}
+.role-title{font-size:15px;font-weight:600;}
+.role-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.role-list li{font-size:13px;padding:8px 11px;border-radius:var(--r-sm);background:var(--surface-2);display:flex;gap:8px;align-items:flex-start;line-height:1.4;}
+.role-list li::before{content:'–';color:var(--text-3);flex-shrink:0;}
+
+.divider{height:1px;background:var(--border);margin:22px 0;}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-3);margin-bottom:12px;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--sh-lg);transform:translateY(8px);opacity:0;transition:all .22s cubic-bezier(0.4,0,0.2,1);pointer-events:none;z-index:9999;}
+.toast.show{transform:none;opacity:1;}
+
+/* ── Kbd ── */
+.kbd-hint{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.kbd-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-3);}
+.kbd{background:var(--surface-2);border:1px solid var(--border-md);border-radius:5px;padding:2px 7px;font-family:var(--mono);font-size:11px;color:var(--text-2);}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:40px 20px;color:var(--text-2);font-size:14px;}
+.empty-icon{font-size:30px;margin-bottom:10px;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:999px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr;}
+  .sidebar{position:static;height:auto;}
+  .page-header{padding:20px 18px 0;}
+  .content{padding:0 18px 40px;}
+  .result-cols,.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <header class="hero">
-      <div class="kicker">Outil interne boutique</div>
-      <h1>Assistant Boutique</h1>
-      <p>Traitez rapidement les appels clients web avec scripts et suivi KPI.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#storeSelection">Commencer</a>
-      </div>
-    </header>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <h2>Navigation</h2>
-        <button onclick="scrollToId('contexte')">Contexte</button>
-        <button onclick="scrollToId('posture')">Posture client</button>
-        <button onclick="scrollToId('storeSelection')">Boutique</button>
-        <button onclick="scrollToId('assistant')">Choisir motif client</button>
-        <button onclick="scrollToId('roles')">Rôles</button>
-        <button onclick="scrollToId('kpi')">KPI</button>
-      </aside>
+<!-- Boutique Modal -->
+<div class="modal-overlay" id="boutiqueModal">
+  <div class="modal">
+    <h2>Quelle boutique prend cet appel ?</h2>
+    <p>Sélectionnez votre boutique pour démarrer. Les statistiques seront enregistrées par point de vente.</p>
+    <div class="boutique-list" id="boutiqueList"></div>
+  </div>
+</div>
 
-      <main class="main">
-        <section id="contexte">
-          <div class="tag blue">Pourquoi cet outil ?</div>
-          <h2>Contexte</h2>
-          <p>Les boutiques reçoivent de nombreux appels clients pour des commandes web. L’outil permet de choisir le motif via un bouton et de suivre un diagnostic guidé clair.</p>
-        </section>
+<div class="shell">
 
-        <section id="posture">
-          <div class="tag blue">Posture client</div>
-          <h2>Règle de réponse</h2>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <div class="tag green">À faire: écouter, reformuler, vérifier info, orienter SAV si nécessaire</div>
-            <div class="tag red">À éviter: promettre, accuser, créer doublons, dire "rien à faire"</div>
-          </div>
-        </section>
-
-        <section id="storeSelection">
-          <div class="tag blue">Boutique contactée</div>
-          <h2>Sélection</h2>
-          <select id="storeSelect" class="search-box">
-            <option value="">Sélectionner une boutique</option>
-            <option value="Ayumi">Ayumi</option>
-            <option value="Footstore">Footstore</option>
-            <option value="Endurance Store">Endurance Store</option>
-            <option value="Boulevard du Golf">Boulevard du Golf</option>
-            <option value="Smash Expert">Smash Expert</option>
-            <option value="Vélo Store">Vélo Store</option>
-          </select>
-        </section>
-
-        <section id="assistant">
-          <div class="tag purple">Diagnostic guidé</div>
-          <h2>Choisir le motif client</h2>
-          <div id="caseGrid" class="case-grid"></div>
-          <div id="assistantPanel"></div>
-        </section>
-
-        <section id="roles">
-          <div class="tag orange">Rôles & limites</div>
-          <h2>Boutique vs SAV</h2>
-          <p>Boutique: rassurer et qualifier. SAV: traiter les cas complexes et les escalades.</p>
-        </section>
-
-        <section id="kpi">
-          <div class="tag green">Suivi et KPI</div>
-          <h2>Statistiques</h2>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <div class="tag green">Total appels: <span id="kpiTotal">0</span></div>
-            <div class="tag purple">Escalades: <span id="kpiEscalades">0</span></div>
-            <div class="tag blue">Motif principal: <span id="kpiTopMotif">-</span></div>
-          </div>
-          <table><thead><tr><th>Boutique</th><th>Motif</th><th>Appels</th><th>Escalades</th></tr></thead><tbody id="kpiTableBody"></tbody></table>
-          <button id="resetStatsBtn" type="button" style="margin-top:10px;background:#0f6e56;color:white;padding:10px 16px;border-radius:999px;border:none;cursor:pointer;">Réinitialiser les statistiques</button>
-        </section>
-      </main>
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
     </div>
-
-    <p class="footer-note">Document interne — Assistant Boutique Commandes Web</p>
+    <div><div class="brand-name">Assistant Boutique</div><div class="brand-sub">Commandes web</div></div>
   </div>
 
-  <script>
-    // Ici JS pour remplir #caseGrid avec boutons par motif et gérer diagnostic, scripts, stats et orientation SAV
-  </script>
+  <div class="boutique-pill" onclick="openBoutiqueModal()" id="sidebarBoutique">
+    <div class="boutique-dot" id="sidebarDot" style="background:#ccc;"></div>
+    <div class="boutique-name" id="sidebarBoutiqueName">Choisir une boutique</div>
+    <div class="boutique-change">Changer</div>
+  </div>
+
+  <div class="nav-section">Appel en cours</div>
+  <button class="nav-btn active" id="navDiag" onclick="showPage('diagnostic',this)">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Diagnostic guidé
+  </button>
+
+  <div class="nav-section">Référence</div>
+  <button class="nav-btn" onclick="showPage('posture',this)">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Posture client
+  </button>
+  <button class="nav-btn" onclick="showPage('roles',this)">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Rôles & limites
+  </button>
+
+  <div class="nav-section">Suivi</div>
+  <button class="nav-btn" onclick="showPage('historique',this)">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Historique session
+    <span class="nav-count" id="histCount">0</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('kpi',this)">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Statistiques
+    <span class="nav-count" id="kpiBadge">0</span>
+  </button>
+
+  <div class="session-summary">
+    <div class="session-row"><span>Cette session</span><span class="session-val" id="sessionCalls">0 appel(s)</span></div>
+    <div class="session-row"><span>Escalades</span><span class="session-val" id="sessionEsc">0</span></div>
+  </div>
+
+  <div class="sidebar-footer">Document interne<br>Assistant Boutique v3.0</div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+<!-- PAGE Diagnostic -->
+<div class="page active" id="page-diagnostic">
+  <div class="page-header">
+    <div class="breadcrumb">Appel entrant</div>
+    <h1>Que demande le client ?</h1>
+    <p>Choisissez le motif pour lancer le diagnostic guidé et obtenir le script adapté.</p>
+  </div>
+  <div class="content">
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="caseSearch" class="search-input" type="search" placeholder="Rechercher : retard, remboursement, colis perdu, retour…" oninput="renderCases()"/>
+    </div>
+    <div id="caseGrid" class="cases-grid"></div>
+    <div id="diagPanel" style="display:none;"></div>
+    <div class="kbd-hint" style="margin-top:18px;">
+      <span class="kbd-item"><kbd class="kbd">O</kbd> Oui</span>
+      <span class="kbd-item"><kbd class="kbd">N</kbd> Non</span>
+      <span class="kbd-item"><kbd class="kbd">Échap</kbd> Fermer</span>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE Posture -->
+<div class="page" id="page-posture">
+  <div class="page-header">
+    <div class="breadcrumb">Référence</div>
+    <h1>Posture client</h1>
+    <p>Les règles de communication à respecter lors de chaque appel entrant.</p>
+  </div>
+  <div class="content">
+    <div class="grid-2" style="align-items:start;">
+      <div class="card">
+        <div class="section-title" style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;"></span>À faire</div>
+        <div class="rule-row"><div class="rule-dot g"></div><div class="rule-text">Écouter le client jusqu'au bout sans l'interrompre.</div></div>
+        <div class="rule-row"><div class="rule-dot g"></div><div class="rule-text">Reformuler simplement sa demande pour confirmer la compréhension.</div></div>
+        <div class="rule-row"><div class="rule-dot g"></div><div class="rule-text">Vérifier les informations disponibles dans les outils autorisés.</div></div>
+        <div class="rule-row"><div class="rule-dot g"></div><div class="rule-text">Expliquer clairement la prochaine étape.</div></div>
+        <div class="rule-row"><div class="rule-dot g"></div><div class="rule-text">Orienter vers le SAV si le sujet dépasse le périmètre boutique.</div></div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block;"></span>À éviter</div>
+        <div class="rule-row"><div class="rule-dot r"></div><div class="rule-text">Promettre un remboursement sans validation du SAV.</div></div>
+        <div class="rule-row"><div class="rule-dot r"></div><div class="rule-text">Accuser le transporteur ou l'entrepôt directement.</div></div>
+        <div class="rule-row"><div class="rule-dot r"></div><div class="rule-text">Dire "je ne peux rien faire" sans orienter vers une solution.</div></div>
+        <div class="rule-row"><div class="rule-dot r"></div><div class="rule-text">Créer plusieurs demandes pour le même sujet client.</div></div>
+        <div class="rule-row"><div class="rule-dot r"></div><div class="rule-text">Donner un délai précis non confirmé par les systèmes.</div></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">Mode d'emploi</div>
+    <div class="grid-2">
+      <div class="card"><div style="font-size:20px;margin-bottom:6px;">①</div><div style="font-weight:600;margin-bottom:3px;">Identifier le motif</div><div style="font-size:13px;color:var(--text-2);">Sélectionner le cas correspondant à la demande du client.</div></div>
+      <div class="card"><div style="font-size:20px;margin-bottom:6px;">②</div><div style="font-weight:600;margin-bottom:3px;">Renseigner le client</div><div style="font-size:13px;color:var(--text-2);">Saisir l'email / téléphone et le numéro de commande pour le transfert SAV.</div></div>
+      <div class="card"><div style="font-size:20px;margin-bottom:6px;">③</div><div style="font-weight:600;margin-bottom:3px;">Poser les questions</div><div style="font-size:13px;color:var(--text-2);">Répondre aux questions Oui/Non pour qualifier précisément la situation.</div></div>
+      <div class="card"><div style="font-size:20px;margin-bottom:6px;">④</div><div style="font-weight:600;margin-bottom:3px;">Utiliser le script & transférer</div><div style="font-size:13px;color:var(--text-2);">Lire le script, copier le paquet Teams si escalade SAV.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE Roles -->
+<div class="page" id="page-roles">
+  <div class="page-header">
+    <div class="breadcrumb">Référence</div>
+    <h1>Rôles & limites</h1>
+    <p>Ce que la boutique peut faire, et ce qui relève du SAV web.</p>
+  </div>
+  <div class="content">
+    <div class="grid-2" style="align-items:start;">
+      <div class="role-card">
+        <div class="role-head">
+          <div class="role-icon" style="background:var(--green-bg);"><svg width="16" height="16" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div class="role-title">Boutique</div>
+        </div>
+        <ul class="role-list">
+          <li>Accueillir et rassurer le client.</li>
+          <li>Qualifier la demande via le diagnostic.</li>
+          <li>Vérifier les informations dans les outils autorisés.</li>
+          <li>Lire le script adapté à la situation.</li>
+          <li>Orienter vers le bon canal SAV.</li>
+          <li>Copier et envoyer le paquet de transfert par Teams.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-head">
+          <div class="role-icon" style="background:var(--purple-bg);"><svg width="16" height="16" fill="none" stroke="var(--purple)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="role-title">SAV Web</div>
+        </div>
+        <ul class="role-list">
+          <li>Gérer les litiges transport.</li>
+          <li>Ouvrir les enquêtes transporteur.</li>
+          <li>Valider les remboursements web.</li>
+          <li>Traiter les réclamations produit.</li>
+          <li>Gérer les escalades sensibles.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">Contexte</div>
+    <div class="card"><div style="font-size:14px;color:var(--text-2);line-height:1.75;">Les boutiques reçoivent de plus en plus d'appels de clients ayant passé une commande web. La boutique n'a pas accès aux mêmes outils que le SAV web et ne peut pas ouvrir de litiges transport ou valider des remboursements. Son rôle est d'écouter, qualifier, orienter et transmettre les informations au SAV via Teams pour assurer une prise en charge rapide.</div></div>
+  </div>
+</div>
+
+<!-- PAGE Historique -->
+<div class="page" id="page-historique">
+  <div class="page-header">
+    <div class="breadcrumb">Suivi</div>
+    <h1>Historique de session</h1>
+    <p>Tous les appels traités depuis l'ouverture de l'outil. Réinitialisé à la fermeture du navigateur.</p>
+  </div>
+  <div class="content">
+    <div id="histSessionList"></div>
+  </div>
+</div>
+
+<!-- PAGE KPI -->
+<div class="page" id="page-kpi">
+  <div class="page-header">
+    <div class="breadcrumb">Suivi</div>
+    <h1>Statistiques</h1>
+    <p>Données cumulées depuis l'installation. Filtrables par boutique.</p>
+  </div>
+  <div class="content">
+    <div class="filter-tabs" id="filterTabs"></div>
+    <div class="grid-4" style="margin-bottom:18px;">
+      <div class="kpi-card"><div class="kpi-label">Appels</div><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-sub">traités</div></div>
+      <div class="kpi-card"><div class="kpi-label">Escalades SAV</div><div class="kpi-value" id="kpiEsc">0</div><div class="kpi-sub" id="kpiEscPct">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Boutique active</div><div class="kpi-value" id="kpiTopBoutique" style="font-size:16px;padding-top:6px;">—</div><div class="kpi-sub" id="kpiTopBoutiqueSub">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Motif principal</div><div class="kpi-value" id="kpiTopMotif" style="font-size:16px;padding-top:6px;">—</div><div class="kpi-sub" id="kpiTopMotifSub">—</div></div>
+    </div>
+    <div class="section-title">Répartition par motif</div>
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+      <table class="stats-table"><thead><tr><th>Motif</th><th>Boutique</th><th>Appels</th><th>Volume</th><th>Escalades</th></tr></thead><tbody id="kpiBody"></tbody></table>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="exportCSV()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exporter CSV
+      </button>
+      <button class="btn btn-sm btn-ghost" onclick="resetStats()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SAV_URL = "[URL NOUS CONTACTER]";
+
+const BOUTIQUES = [
+  { id:"foot",  name:"Foot Store",          color:"#1E7A3E" },
+  { id:"end",   name:"Endurance Store",     color:"#C44B1A" },
+  { id:"velo",  name:"Vélo Store",          color:"#1A5FAB" },
+  { id:"gold",  name:"Boulevard du Gold",   color:"#B08A00" },
+  { id:"smash", name:"Smash Expert",        color:"#7B2FA8" },
+];
+
+function R(title,badge,color,script,action){return{title,badge,color,script,action};}
+
+const CASES=[
+  {id:"retard",icon:"⏱",title:"Retard de livraison",desc:"Commande non arrivée dans les délais.",type:"sav",
+   steps:[
+    {q:"Le client peut-il donner son email ou numéro de téléphone ?",hint:"Nécessaire pour identifier la commande côté SAV.",yes:1,no:"no_id"},
+    {q:"La commande est-elle de type Stockly ou Drop ?",hint:"Vérifier dans l'outil de commandes.",yes:"stockly",no:2},
+    {q:"Le statut indique-t-il que le colis est livré ?",hint:"Consulter le suivi transporteur visible.",yes:"delivered_not_received",no:3},
+    {q:"Le retard est-il supérieur à 5 jours ouvrés ?",hint:"Compter à partir de la date d'expédition confirmée.",yes:"abnormal_delay",no:"normal_delay"}
+   ],
+   results:{
+    no_id:R("Identification impossible","Autonomie boutique","green","Pour vous aider efficacement, j'ai besoin de votre adresse e-mail ou numéro de téléphone associé à la commande. Sans cette information, notre service client ne pourra pas retrouver votre dossier.","Demander au client son email ou téléphone. Sans identifiant, orienter vers le SAV en lui demandant de contacter via le formulaire."),
+    stockly:R("Commande Stockly ou Drop","Orientation SAV","purple","Pour ce type de commande, notre service client dispose des informations nécessaires. Je vous invite à les contacter via le formulaire Nous contacter avec votre numéro de commande.","Ne pas traiter depuis la boutique. Orienter directement vers le SAV web. Copier le paquet Teams."),
+    delivered_not_received:R("Colis livré mais non reçu","Orientation SAV","purple","Le transporteur indique que le colis a été livré. Avant toute démarche, pouvez-vous vérifier votre boîte aux lettres, un voisin, un gardien ou un point relais ? Si le colis reste introuvable, notre SAV pourra ouvrir une investigation.","Orienter vers le SAV après vérification des lieux de dépôt. Copier le paquet Teams."),
+    abnormal_delay:R("Retard anormal","Orientation SAV","purple","Ce délai dépasse nos standards habituels. Notre service client dispose des accès nécessaires pour effectuer les vérifications auprès du transporteur.","Orienter vers le SAV. Ne pas ouvrir d'enquête transporteur depuis la boutique. Copier le paquet Teams."),
+    normal_delay:R("Retard dans les délais normaux","Autonomie boutique","green","Votre colis est en cours d'acheminement. Les mises à jour transporteur peuvent prendre un peu de temps. Je vous invite à patienter encore quelques jours.","Rassurer le client et communiquer les informations visibles.")
+   }
+  },
+  {id:"non_recu",icon:"📦",title:"Commande non reçue",desc:"Le client affirme ne pas avoir reçu sa commande.",type:"sav",
+   steps:[
+    {q:"Le client peut-il donner son email ou numéro de téléphone ?",hint:"Nécessaire pour identifier la commande côté SAV.",yes:1,no:"no_id"},
+    {q:"La commande est-elle de type Stockly ou Drop ?",hint:"",yes:"stockly",no:2},
+    {q:"Le statut indique-t-il livré ?",hint:"Consulter le suivi transporteur.",yes:3,no:"in_transit"},
+    {q:"Le client a-t-il vérifié voisin, gardien, boîte aux lettres ou point relais ?",hint:"",yes:"investigation",no:"check_deposit"}
+   ],
+   results:{
+    no_id:R("Identification impossible","Autonomie boutique","green","Pour vous aider efficacement, j'ai besoin de votre adresse e-mail ou numéro de téléphone associé à la commande.","Demander email ou téléphone. Orienter vers le formulaire SAV si impossible."),
+    stockly:R("Commande Stockly ou Drop","Orientation SAV","purple","Pour ce type de commande, notre service client dispose des informations nécessaires. Je vous invite à les contacter via le formulaire Nous contacter.","Ne pas traiter depuis la boutique. Copier le paquet Teams."),
+    in_transit:R("Colis encore en route","Autonomie boutique","green","Votre colis est encore en cours de livraison. Le suivi sera mis à jour dès que le transporteur aura effectué la remise.","Communiquer la date estimée si visible."),
+    check_deposit:R("Vérification des lieux de dépôt","Autonomie boutique","green","Le transporteur peut parfois déposer un colis chez un voisin, un gardien ou en point relais. Pouvez-vous vérifier ces points avant toute investigation ?","Faire vérifier les lieux de dépôt."),
+    investigation:R("Colis introuvable","Orientation SAV","purple","Je comprends votre inquiétude. Si le colis reste introuvable après vérification, notre service client pourra ouvrir une investigation auprès du transporteur.","Orienter vers le SAV pour enquête transporteur. Copier le paquet Teams.")
+   }
+  },
+  {id:"suivi",icon:"🔍",title:"Suivi colis indisponible",desc:"Le lien de suivi ne fonctionne pas ou n'est pas à jour.",type:"sav",
+   steps:[
+    {q:"Le client peut-il donner son email ou numéro de téléphone ?",hint:"Nécessaire pour identifier la commande.",yes:1,no:"no_id"},
+    {q:"La commande est-elle de type Stockly ou Drop ?",hint:"",yes:"stockly",no:2},
+    {q:"L'expédition date-t-elle de moins de 24h ?",hint:"Le tracking peut mettre jusqu'à 24h à s'activer.",yes:"wait_activation",no:3},
+    {q:"Le numéro de suivi semble-t-il valide ?",hint:"Vérifier le format (ex: chiffres seuls, code alphanumérique).",yes:"carrier_delay",no:"invalid_tracking"}
+   ],
+   results:{
+    no_id:R("Identification impossible","Autonomie boutique","green","Pour vous aider, j'ai besoin de votre adresse e-mail ou numéro de téléphone associé à la commande.","Demander email ou téléphone."),
+    stockly:R("Commande Stockly ou Drop","Orientation SAV","purple","Pour ce type de commande, le SAV web dispose des informations nécessaires. Je vous invite à les contacter via le formulaire Nous contacter.","Orienter vers le SAV web. Copier le paquet Teams."),
+    wait_activation:R("Activation normale","Autonomie boutique","green","Votre colis vient d'être expédié. Le suivi peut mettre jusqu'à 24h à s'activer. Je vous invite à réessayer demain.","Demander au client de réessayer plus tard."),
+    carrier_delay:R("Délai transporteur","Orientation SAV","purple","Il peut y avoir un délai de mise à jour côté transporteur. Si le suivi reste bloqué au-delà de 48h, notre SAV pourra vérifier la situation.","Orienter vers le SAV si blocage au-delà de 48h. Copier le paquet Teams."),
+    invalid_tracking:R("Numéro invalide","Orientation SAV","purple","Le numéro de suivi ne semble pas reconnu. Notre service client pourra effectuer une vérification avec les informations de commande.","Orienter vers le SAV. Copier le paquet Teams.")
+   }
+  },
+  {id:"produit",icon:"⚠️",title:"Produit manquant ou abîmé",desc:"Article absent, mauvais ou détérioré.",type:"direct",
+   directResult:"sav_product",
+   results:{sav_product:R("Réclamation produit","Orientation SAV","purple","Je suis désolé pour cette situation. Pour que votre demande soit traitée correctement, je vous invite à contacter notre service client via le formulaire Nous contacter, avec votre numéro de commande et des photos du produit ou de l'emballage si nécessaire.","Orienter vers le SAV web. Copier le paquet Teams avec les détails du produit concerné.")}
+  },
+  {id:"remboursement",icon:"💶",title:"Demande de remboursement",desc:"Le client souhaite être remboursé.",type:"sav",
+   steps:[
+    {q:"Le client peut-il donner son email ou numéro de téléphone ?",hint:"",yes:1,no:"no_id"},
+    {q:"L'achat a-t-il été effectué sur le site web ?",hint:"",yes:2,no:"store_purchase"},
+    {q:"La demande est-elle dans le délai de 14 jours ?",hint:"Délai légal de rétractation à compter de la réception.",yes:3,no:"out_of_time"},
+    {q:"Le produit est-il retournable ?",hint:"Vérifier les exclusions : produit personnalisé, hygiène, etc.",yes:"eligible",no:"excluded"}
+   ],
+   results:{
+    no_id:R("Identification impossible","Autonomie boutique","green","Pour vous aider, j'ai besoin de votre adresse e-mail ou numéro de téléphone associé à la commande.","Demander email ou téléphone."),
+    store_purchase:R("Achat boutique","Autonomie boutique","green","Pour un achat réalisé en boutique, nous pouvons vérifier directement les conditions de retour ou de remboursement en magasin.","Appliquer la procédure boutique."),
+    out_of_time:R("Hors délai","Autonomie boutique","green","Le délai légal de rétractation de 14 jours est dépassé. Un remboursement n'est plus possible, sauf cas particulier ou défaut produit.","Informer le client avec prudence. Si défaut produit : orienter vers le SAV."),
+    excluded:R("Produit exclu","Orientation SAV","purple","Ce produit est soumis à des conditions spécifiques. Le SAV pourra vérifier si une exception est possible.","Orienter vers le SAV. Copier le paquet Teams."),
+    eligible:R("Demande éligible","Orientation SAV","purple","Votre demande semble éligible. Pour une commande web, le remboursement doit être traité par le service client via le formulaire de contact.","Orienter vers le SAV web. Copier le paquet Teams.")
+   }
+  },
+  {id:"perdu",icon:"❓",title:"Colis perdu",desc:"Le client pense que son colis est perdu.",type:"direct",
+   directResult:"sav_lost",
+   results:{sav_lost:R("Colis potentiellement perdu","Orientation SAV","purple","Je comprends votre inquiétude. Pour ce type de situation, notre service client doit vérifier le dossier et, si nécessaire, ouvrir une enquête auprès du transporteur. Je vous invite à les contacter via le formulaire Nous contacter avec votre numéro de commande.","Orienter vers le SAV web. Copier le paquet Teams.")}
+  },
+  {id:"retour",icon:"🔄",title:"Retour / échange commande web",desc:"Le client souhaite retourner ou échanger un article.",type:"direct",
+   directResult:"sav_return",
+   results:{sav_return:R("Retour ou échange commande web","Orientation SAV","purple","Pour une commande passée sur le site, le retour ou l'échange se gère via le service client ou depuis le site web. Je vous invite à utiliser le formulaire Nous contacter avec votre numéro de commande et le motif du retour.","Orienter vers le SAV web. Copier le paquet Teams.")}
+  },
+  {id:"mecontent",icon:"🔴",title:"Client mécontent / escalade",desc:"Client énervé, menaçant ou réclamant une prise en charge prioritaire.",type:"direct",
+   directResult:"sav_unhappy",
+   results:{sav_unhappy:R("Client mécontent","Orientation SAV","purple","Je comprends votre mécontentement et je suis sincèrement désolé pour cette situation. Le service client du site dispose des accès nécessaires pour reprendre votre dossier et vous apporter une réponse adaptée. Je vous invite à les contacter via le formulaire Nous contacter en indiquant votre numéro de commande et le détail de votre demande.","Orienter vers le SAV. Rester calme. Copier le paquet Teams avec mention du niveau de mécontentement.")}
+  }
+];
+
+/* ── State ── */
+let activeBoutique = null;
+let currentCase = null, currentStep = 0, histAnswers = [];
+let clientEmail = "", clientPhone = "", clientOrder = "", callNote = "";
+let sessionLog = [];
+let kpiFilter = "all";
+
+/* ── Boutique modal ── */
+function buildBoutiqueList(){
+  const list = document.getElementById("boutiqueList");
+  list.innerHTML = "";
+  BOUTIQUES.forEach(b=>{
+    const btn = document.createElement("button");
+    btn.className = "boutique-option";
+    btn.innerHTML = `<span class="dot" style="background:${b.color};"></span><span class="bname">${b.name}</span><svg class="arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+    btn.onclick = ()=>selectBoutique(b);
+    list.appendChild(btn);
+  });
+}
+
+function openBoutiqueModal(){
+  document.getElementById("boutiqueModal").style.display="flex";
+}
+
+function selectBoutique(b){
+  activeBoutique = b;
+  document.getElementById("boutiqueModal").style.display="none";
+  document.getElementById("sidebarBoutiqueName").textContent = b.name;
+  document.getElementById("sidebarDot").style.background = b.color;
+}
+
+/* ── Navigation ── */
+function showPage(id, btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+  if(btn) btn.classList.add("active");
+  else document.getElementById("navDiag").classList.add("active");
+  if(id==="kpi") renderStats();
+  if(id==="historique") renderHistorique();
+}
+
+/* ── Cases ── */
+function renderCases(){
+  const q = (document.getElementById("caseSearch").value||"").toLowerCase().trim();
+  const grid = document.getElementById("caseGrid");
+  grid.innerHTML="";
+  const list = CASES.filter(c=>!q||c.title.toLowerCase().includes(q)||c.desc.toLowerCase().includes(q));
+  if(!list.length){grid.innerHTML=`<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">🔎</div>Aucun cas trouvé.</div>`;return;}
+  list.forEach(c=>{
+    const isDir = !!c.directResult;
+    const btn=document.createElement("button");
+    btn.className="case-card";
+    btn.onclick=()=>startCase(c.id);
+    btn.innerHTML=`
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div class="case-icon-bg">${c.icon}</div>
+        <div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-desc" style="margin-top:3px;">${c.desc}</div>
+        </div>
+      </div>
+      <div class="case-type">
+        <div class="case-type-dot" style="background:${isDir?'var(--purple)':'var(--blue)'};"></div>
+        ${isDir?"Orientation directe":"Diagnostic guidé"}
+      </div>`;
+    grid.appendChild(btn);
+  });
+}
+
+function startCase(id){
+  if(!activeBoutique){openBoutiqueModal();return;}
+  currentCase=CASES.find(c=>c.id===id);
+  currentStep=0;histAnswers=[];clientEmail="";clientPhone="";clientOrder="";callNote="";
+  const panel=document.getElementById("diagPanel");
+  panel.style.display="block";
+  if(currentCase.directResult) renderResult(currentCase.results[currentCase.directResult]);
+  else renderQuestion();
+  panel.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+/* ── Progress ── */
+function progressHTML(){
+  if(!currentCase||!currentCase.steps) return "";
+  const tot=currentCase.steps.length, pct=Math.round((currentStep/tot)*100);
+  return `<div class="prog-track"><div class="prog-bar" style="width:${pct}%"></div></div>
+          <div class="prog-labels"><span>Étape ${currentStep+1} / ${tot}</span><span>${pct}%</span></div>`;
+}
+
+function histHTML(){
+  if(!histAnswers.length) return "";
+  return `<div class="hist-steps">${histAnswers.map(h=>`
+    <div class="hist-step">
+      <span class="hist-q">${h.q}</span>
+      <span class="hist-a ${h.a==="Oui"?"yes":"no"}">${h.a}</span>
+    </div>`).join("")}</div>`;
+}
+
+function clientBarHTML(){
+  return `<div class="client-bar">
+    <div class="client-field">
+      <label>Email / Tél.</label>
+      <input class="client-input" id="ci_contact" placeholder="jean.dupont@email.com ou 06…" value="${clientEmail||clientPhone}"
+        oninput="if(this.value.includes('@'))clientEmail=this.value;else clientPhone=this.value;">
+    </div>
+    <div class="client-field">
+      <label>N° commande</label>
+      <input class="client-input" id="ci_order" placeholder="#FR-XXXXXX" value="${clientOrder}" oninput="clientOrder=this.value;">
+    </div>
+  </div>`;
+}
+
+/* ── Question ── */
+function renderQuestion(){
+  const panel=document.getElementById("diagPanel");
+  const step=currentCase.steps[currentStep];
+  panel.innerHTML=`
+    <div class="diag-panel">
+      <div class="diag-header">
+        <div class="diag-icon">${currentCase.icon}</div>
+        <div style="flex:1;">
+          <div class="diag-title">${currentCase.title}</div>
+          <div class="diag-sub" style="display:flex;align-items:center;gap:6px;">
+            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?.name||''}</span>
+            Diagnostic en cours
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="closePanel()">Fermer</button>
+      </div>
+      ${clientBarHTML()}
+      ${progressHTML()}
+      <div class="diag-body">
+        ${histHTML()}
+        <div class="q-label"><span class="badge b-blue">Question ${currentStep+1}</span></div>
+        <div class="q-text" style="margin-top:8px;">${step.q}</div>
+        ${step.hint?`<div class="q-hint"><span>💡</span><span>${step.hint}</span></div>`:""}
+        <div class="answer-row">
+          <button class="ans-btn ans-yes" onclick="answer(true)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Oui
+          </button>
+          <button class="ans-btn ans-no" onclick="answer(false)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Non
+          </button>
+        </div>
+      </div>
+    </div>`;
+  syncClientFields();
+}
+
+function syncClientFields(){
+  const cc=document.getElementById("ci_contact");
+  const co=document.getElementById("ci_order");
+  if(cc){cc.value=clientEmail||clientPhone;cc.oninput=function(){if(this.value.includes("@"))clientEmail=this.value;else clientPhone=this.value;};}
+  if(co){co.value=clientOrder;co.oninput=function(){clientOrder=this.value;};}
+}
+
+function answer(isYes){
+  const step=currentCase.steps[currentStep];
+  const cc=document.getElementById("ci_contact");
+  const co=document.getElementById("ci_order");
+  if(cc){if(cc.value.includes("@"))clientEmail=cc.value;else clientPhone=cc.value;}
+  if(co) clientOrder=co.value;
+  histAnswers.push({q:step.q,a:isYes?"Oui":"Non"});
+  const next=isYes?step.yes:step.no;
+  if(typeof next==="number"){currentStep=next;renderQuestion();}
+  else renderResult(currentCase.results[next]);
+}
+
+/* ── Result ── */
+function renderResult(res){
+  const panel=document.getElementById("diagPanel");
+  if(!panel||!res) return;
+  recordStats(currentCase.title,res.badge,activeBoutique?.id||"");
+  logSession(currentCase,res);
+
+  const isSAV = res.badge==="Orientation SAV";
+  const heroBg = res.color==="green"?"var(--green-bg)":res.color==="purple"?"var(--purple-bg)":"var(--orange-bg)";
+  const badgeCls = res.color==="green"?"b-green":res.color==="purple"?"b-purple":"b-orange";
+  const emoji = res.color==="green"?"✅":"↗️";
+  const teamsMsg = buildTeamsMessage(res);
+
+  panel.innerHTML=`
+    <div class="diag-panel">
+      <div class="diag-header">
+        <div class="diag-icon">${currentCase.icon}</div>
+        <div style="flex:1;">
+          <div class="diag-title">${currentCase.title}</div>
+          <div class="diag-sub" style="display:flex;align-items:center;gap:6px;">
+            <span class="badge b-blue" style="font-size:10px;">${activeBoutique?.name||''}</span>
+            Résultat du diagnostic
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="closePanel()">Fermer</button>
+      </div>
+      <div class="diag-body">
+        ${histHTML()}
+        <div class="result-hero" style="background:${heroBg};">
+          <div class="result-hero-top">
+            <div class="result-hero-emoji">${emoji}</div>
+            <div>
+              <div class="result-hero-title">${res.title}</div>
+              <div><span class="badge ${badgeCls}">${res.badge}</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="result-cols">
+          <div>
+            <div class="result-block-label">Script à dire au client</div>
+            <div class="script-box" id="scriptBox">"${res.script}"</div>
+            <button class="btn btn-sm" onclick="copyScript()" style="margin-top:8px;">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copier le script
+            </button>
+            <div class="result-block-label" style="margin-top:14px;">Note rapide</div>
+            <textarea class="notes-textarea" id="noteArea" placeholder="Observations, contexte particulier…" oninput="callNote=this.value">${callNote}</textarea>
+          </div>
+          <div>
+            <div class="result-block-label">Action équipe</div>
+            <div class="action-box">${res.action}</div>
+            <div class="result-block-label" style="margin-top:12px;">Lien utile</div>
+            <a class="link-btn" href="${SAV_URL}" target="_blank">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Formulaire Nous contacter
+            </a>
+          </div>
+        </div>
+        ${isSAV?`
+        <div class="teams-block">
+          <div class="teams-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#464EB8"><path d="M20.5 3h-17C2.67 3 2 3.67 2 4.5v15c0 .83.67 1.5 1.5 1.5h17c.83 0 1.5-.67 1.5-1.5v-15c0-.83-.67-1.5-1.5-1.5zM10 17H8v-6h2v6zm4 0h-2v-6h2v6zm4 0h-2v-6h2v6z"/></svg>
+            <span class="teams-header-title">Paquet de transfert Teams</span>
+          </div>
+          <div class="teams-preview" id="teamsPreview">${teamsMsg}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-sm btn-teams" onclick="copyTeams()">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copier pour Teams
+            </button>
+            <button class="btn btn-sm btn-ghost" onclick="refreshTeams()">Mettre à jour</button>
+          </div>
+        </div>`:""}
+        <div class="result-actions">
+          <button class="btn btn-sm" onclick="restartCase()">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            Recommencer ce cas
+          </button>
+          <button class="btn btn-sm btn-ghost" onclick="closePanel()">Choisir un autre cas</button>
+        </div>
+      </div>
+    </div>`;
+  panel._res = res;
+  panel._script = res.script;
+}
+
+function buildTeamsMessage(res){
+  const now = new Date();
+  const heure = now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const contact = clientEmail||clientPhone||"Non renseigné";
+  const order = clientOrder||"Non renseigné";
+  const note = (document.getElementById("noteArea")?.value)||callNote||"—";
+  const diagLines = histAnswers.map(h=>`  • ${h.q} → ${h.a}`).join("\n")||"  (orientation directe)";
+  return `🔴 ESCALADE SAV — ${activeBoutique?.name||"Boutique"}
+──────────────────────────
+⏱ Heure : ${heure}
+🏪 Boutique : ${activeBoutique?.name||"—"}
+👤 Contact client : ${contact}
+📦 N° commande : ${order}
+──────────────────────────
+📋 Motif : ${currentCase?.title||"—"}
+🔍 Diagnostic :
+${diagLines}
+──────────────────────────
+⚠️ Résultat : ${res.title}
+📝 Note : ${note}
+──────────────────────────
+→ Action demandée : ${res.action}`;
+}
+
+function refreshTeams(){
+  const panel=document.getElementById("diagPanel");
+  const res=panel._res;
+  if(!res) return;
+  const note=document.getElementById("noteArea")?.value||"";
+  callNote=note;
+  document.getElementById("teamsPreview").textContent=buildTeamsMessage(res);
+  showToast("Message mis à jour ✓");
+}
+
+function copyScript(){
+  const t=document.getElementById("diagPanel")?._script||"";
+  copyToClip(t,()=>showToast("Script copié ✓"));
+}
+function copyTeams(){
+  refreshTeams();
+  const t=document.getElementById("teamsPreview")?.textContent||"";
+  copyToClip(t,()=>showToast("Paquet Teams copié ✓"));
+}
+function copyToClip(text,cb){
+  navigator.clipboard?.writeText(text).then(cb).catch(()=>{
+    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);cb();
+  });
+}
+
+function restartCase(){
+  currentStep=0;histAnswers=[];
+  if(currentCase.directResult) renderResult(currentCase.results[currentCase.directResult]);
+  else renderQuestion();
+}
+function closePanel(){
+  const p=document.getElementById("diagPanel");
+  p.style.display="none";p.innerHTML="";
+  currentCase=null;currentStep=0;histAnswers=[];
+}
+
+/* ── Session log ── */
+function logSession(cas,res){
+  const now=new Date();
+  sessionLog.push({
+    icon:cas.icon,motif:cas.title,badge:res.badge,
+    boutique:activeBoutique?.name||"—",
+    time:now.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}),
+    note:callNote,
+    contact:clientEmail||clientPhone||"",
+    order:clientOrder||""
+  });
+  document.getElementById("histCount").textContent=sessionLog.length;
+  const calls=sessionLog.length;
+  const esc=sessionLog.filter(l=>l.badge==="Orientation SAV").length;
+  document.getElementById("sessionCalls").textContent=calls+" appel"+(calls>1?"s":"");
+  document.getElementById("sessionEsc").textContent=esc;
+}
+
+function renderHistorique(){
+  const el=document.getElementById("histSessionList");
+  if(!sessionLog.length){el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>Aucun appel traité lors de cette session.</div>`;return;}
+  el.innerHTML=`<div class="hist-session-list">${[...sessionLog].reverse().map(l=>`
+    <div class="hist-session-item">
+      <div class="hist-session-icon">${l.icon}</div>
+      <div class="hist-session-info">
+        <div class="hist-session-top">
+          <span class="hist-session-motif">${l.motif}</span>
+          <span class="badge ${l.badge==="Orientation SAV"?"b-purple":"b-green"}">${l.badge}</span>
+        </div>
+        <div class="hist-session-meta">${l.boutique} · ${l.time}${l.contact?" · "+l.contact:""}${l.order?" · "+l.order:""}</div>
+        ${l.note?`<div class="hist-session-note">${l.note}</div>`:""}
+      </div>
+    </div>`).join("")}</div>`;
+}
+
+/* ── Stats ── */
+function recordStats(motif,badge,boutiqueId){
+  const raw=localStorage.getItem("abStats_v3")||"[]";
+  const data=JSON.parse(raw);
+  data.push({motif,badge,boutique:boutiqueId,ts:Date.now()});
+  localStorage.setItem("abStats_v3",JSON.stringify(data));
+  const total=data.length;
+  document.getElementById("kpiBadge").textContent=total;
+}
+
+function renderStats(){
+  const raw=localStorage.getItem("abStats_v3")||"[]";
+  let data=JSON.parse(raw);
+
+  // build boutique filter tabs
+  const bids=[...new Set(data.map(d=>d.boutique))].filter(Boolean);
+  const tabsEl=document.getElementById("filterTabs");
+  tabsEl.innerHTML=`<button class="ftab ${kpiFilter==="all"?"active":""}" onclick="setFilter('all')">Toutes les boutiques</button>`
+    +BOUTIQUES.filter(b=>bids.includes(b.id)).map(b=>`<button class="ftab ${kpiFilter===b.id?"active":""}" onclick="setFilter('${b.id}')" style="${kpiFilter===b.id?"background:"+b.color+";color:#fff;border-color:transparent;":""}">${b.name}</button>`).join("");
+
+  if(kpiFilter!=="all") data=data.filter(d=>d.boutique===kpiFilter);
+
+  const total=data.length;
+  const esc=data.filter(d=>d.badge==="Orientation SAV").length;
+
+  // boutique breakdown
+  const byBoutique={};
+  data.forEach(d=>{byBoutique[d.boutique]=(byBoutique[d.boutique]||0)+1;});
+  const topB=Object.entries(byBoutique).sort((a,b)=>b[1]-a[1])[0];
+  const topBObj=topB?BOUTIQUES.find(b=>b.id===topB[0]):null;
+
+  // motif breakdown
+  const byMotif={};
+  data.forEach(d=>{
+    if(!byMotif[d.motif]) byMotif[d.motif]={calls:0,esc:0,boutique:d.boutique};
+    byMotif[d.motif].calls++;
+    if(d.badge==="Orientation SAV") byMotif[d.motif].esc++;
+  });
+  const sorted=Object.entries(byMotif).sort((a,b)=>b[1].calls-a[1].calls);
+  const topM=sorted[0];
+  const maxCalls=topM?topM[1].calls:1;
+
+  document.getElementById("kpiTotal").textContent=total;
+  document.getElementById("kpiEsc").textContent=esc;
+  document.getElementById("kpiEscPct").textContent=total>0?Math.round((esc/total)*100)+"% du total":"—";
+  document.getElementById("kpiTopBoutique").textContent=topBObj?topBObj.name:"—";
+  document.getElementById("kpiTopBoutiqueSub").textContent=topB?topB[1]+" appel"+(topB[1]>1?"s":""):"—";
+  document.getElementById("kpiTopMotif").textContent=topM?topM[0]:"—";
+  document.getElementById("kpiTopMotifSub").textContent=topM?topM[1].calls+" appel"+(topM[1].calls>1?"s":""):"—";
+
+  document.getElementById("kpiBadge").textContent=JSON.parse(localStorage.getItem("abStats_v3")||"[]").length;
+
+  const body=document.getElementById("kpiBody");
+  if(!sorted.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:22px;">Aucun appel enregistré.</td></tr>`;return;}
+  body.innerHTML=sorted.map(([motif,v])=>{
+    const bObj=BOUTIQUES.find(b=>b.id===v.boutique);
+    return`<tr>
+      <td style="font-weight:500;">${motif}</td>
+      <td>${bObj?`<span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:${bObj.color};display:inline-block;"></span>${bObj.name}</span>`:"—"}</td>
+      <td>${v.calls}</td>
+      <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${Math.round((v.calls/maxCalls)*100)}%"></div></div><span style="font-size:11px;color:var(--text-3);min-width:28px;">${total>0?Math.round((v.calls/total)*100):0}%</span></div></td>
+      <td>${v.esc>0?`<span class="badge b-purple">${v.esc}</span>`:`<span style="color:var(--text-3);">0</span>`}</td>
+    </tr>`;}).join("");
+}
+
+function setFilter(id){kpiFilter=id;renderStats();}
+
+function exportCSV(){
+  const raw=localStorage.getItem("abStats_v3")||"[]";
+  const data=JSON.parse(raw);
+  if(!data.length){showToast("Aucune donnée à exporter");return;}
+  const header="Date,Heure,Boutique,Motif,Résultat\n";
+  const rows=data.map(d=>{
+    const dt=new Date(d.ts);
+    const date=dt.toLocaleDateString("fr-FR");
+    const heure=dt.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    const bObj=BOUTIQUES.find(b=>b.id===d.boutique);
+    return`${date},${heure},${bObj?bObj.name:d.boutique},"${d.motif}","${d.badge}"`;
+  }).join("\n");
+  const blob=new Blob([header+rows],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="assistant-boutique-stats.csv";a.click();
+  URL.revokeObjectURL(url);
+  showToast("Export CSV téléchargé ✓");
+}
+
+function resetStats(){
+  if(!confirm("Réinitialiser toutes les statistiques ?")) return;
+  localStorage.removeItem("abStats_v3");
+  renderStats();
+  showToast("Statistiques réinitialisées");
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2400);
+}
+
+/* ── Keyboard shortcuts ── */
+document.addEventListener("keydown",e=>{
+  const panel=document.getElementById("diagPanel");
+  if(!panel||panel.style.display==="none") return;
+  if(e.key==="Escape"){closePanel();return;}
+  const yesBtn=panel.querySelector(".ans-yes");
+  const noBtn=panel.querySelector(".ans-no");
+  if(!yesBtn||!noBtn) return;
+  if(e.key==="o"||e.key==="O"){yesBtn.click();}
+  if(e.key==="n"||e.key==="N"){noBtn.click();}
+});
+
+/* ── Init ── */
+document.addEventListener("DOMContentLoaded",()=>{
+  buildBoutiqueList();
+  renderCases();
+  const total=JSON.parse(localStorage.getItem("abStats_v3")||"[]").length;
+  document.getElementById("kpiBadge").textContent=total;
+});
+</script>
 </body>
 </html>
